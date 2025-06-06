@@ -10,14 +10,16 @@ const generateToken = (admin) => {
 };
 
 exports.registerAdmin = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, lastname, password } = req.body;
 
   const existingAdmin = await Admin.findOne({ email });
   if (existingAdmin) {
-    return res.status(400).json({ message: "Bu email allaqachon ro'yxatdan o'tgan" });
+    return res
+      .status(400)
+      .json({ message: "Bu email allaqachon ro'yxatdan o'tgan" });
   }
 
-  const admin = await Admin.create({ name, email, password });
+  const admin = await Admin.create({ name, email, lastname, password });
   res.status(201).json({ token: generateToken(admin), admin });
 };
 

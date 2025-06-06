@@ -32,7 +32,15 @@ const createQuestion = async (req, res) => {
 // Barcha savollarni olish
 const getAllQuestions = async (req, res) => {
   try {
-    const questions = await Question.find().populate("admin", "name lastname");
+    const { adminId } = req.query; // URL orqali ?adminId=123 tarzida keladi
+
+    const filter = adminId ? { admin: adminId } : {};
+
+    const questions = await Question.find(filter).populate(
+      "admin",
+      "name lastname"
+    );
+
     res.status(200).json(questions);
   } catch (error) {
     res
@@ -40,7 +48,6 @@ const getAllQuestions = async (req, res) => {
       .json({ message: "Savollarni olishda xatolik", error: error.message });
   }
 };
-
 // Savolni ID orqali olish
 
 const getQuestionById =async (req,res)=>{
