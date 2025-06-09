@@ -91,6 +91,42 @@ const updateQuestion = async (req, res) => {
   }
 };
 
+const getRandomQuestions = async (req, res) => {
+  try {
+    const difficultyMapping = {
+      Oson: "Oson",
+      Orta: "O'rta",
+      "O'rta": "O'rta",
+      Qiyin: "Qiyin",
+      "Juda qiyin": "Juda qiyin",
+    };
+
+    let allQuestions = [];
+
+    for (const [key, value] of Object.entries(req.query)) {
+      const count = parseInt(value);
+      if (isNaN(count) || count <= 0) continue;
+
+      const difficulty = difficultyMapping[key];
+      if (!difficulty) continue; // Noto'g'ri param nomi
+
+      const questions = await Question.aggregate([
+        { $match: { difficulty } },
+        { $sample: { size: count } },
+      ]);
+
+      allQuestions = allQuestions.concat(questions);
+    }
+
+    return res.json(allQuestions);
+  } catch (error) {
+    console.error("getRandomQuestions error:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+};
+
 // Savolni o'chirish (delete)
 const deleteQuestion = async (req, res) => {
   try {
@@ -117,4 +153,5 @@ module.exports = {
   updateQuestion,
   deleteQuestion,
   getQuestionById,
+  getRandomQuestions
 };

@@ -6,13 +6,15 @@ const {
   createQuestion,
   updateQuestion,
   deleteQuestion,
-  getQuestionById
+  getQuestionById,
+  getRandomQuestions,
 } = require("../controllers/questionController");
 const { protect } = require("../middlewares/authMiddleware");
 
 router.get("/", protect, getAllQuestions);
-router.post("/", protect, createQuestion);
+router.get("/random", protect, getRandomQuestions);
 router.get("/:id", protect, getQuestionById);
+router.post("/", protect, createQuestion);
 router.delete("/delet/:id", protect, deleteQuestion);
 router.put("/:id", protect, updateQuestion);
 
