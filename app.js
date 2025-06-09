@@ -4,17 +4,14 @@ const app = express();
 
 const questionRoutes = require("./routes/questionRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+
 app.use(express.json());
 
-// CORS ni barcha domenlar uchun, credentials bilan ruxsat berish
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      callback(null, origin); // barcha originlarga ruxsat beradi
-    },
-    credentials: true,
-  })
-);
+// Barcha domenlarga ruxsat berish (credentials bo'lmasa)
+app.use(cors());
+
+// OPTIONS so'rovlariga ham ruxsat
+app.options("*", cors());
 
 // Routerlar
 app.use("/api/questions", questionRoutes);
