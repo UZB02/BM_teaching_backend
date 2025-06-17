@@ -45,18 +45,67 @@ const getAllOptionQuizs = async (req, res) => {
   }
 };
 
+const getRandomQuestions = async (req, res) => {
+  try {
+    const difficultyMapping = {
+      Oson: "Oson",
+      Orta: "O'rta",
+      "O'rta": "O'rta",
+      Qiyin: "Qiyin",
+      "Juda qiyin": "Juda qiyin",
+    };
+
+    let allQuestions = [];
+
+    for (const [key, value] of Object.entries(req.query)) {
+      const count = parseInt(value);
+      if (isNaN(count) || count <= 0) continue;
+
+      const difficulty = difficultyMapping[key];
+      if (!difficulty) {
+        console.warn(`Noto'g'ri difficulty: ${key}`);
+        continue;
+      }
+
+      // Check if yetarlicha savol mavjud
+      const existingCount = await OptionQuiz.countDocuments({ difficulty });
+      const finalCount = Math.min(existingCount, count); // mavjuddan ko'p so‘ralmasin
+
+      if (finalCount === 0) continue;
+
+      const questions = await OptionQuiz.aggregate([
+        { $match: { difficulty } },
+        { $sample: { size: finalCount } },
+      ]);
+
+      allQuestions = allQuestions.concat(questions);
+    }
+
+    return res.status(200).json(allQuestions);
+  } catch (error) {
+    console.error("getRandomQuestions error:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+};
+
 // Bitta savolni olish (ID orqali)
 const getOptionQuizById = async (req, res) => {
   try {
-    const OptionQuiz = await OptionQuiz.findById(req.params.id);
-    if (!OptionQuiz) {
+    const quiz = await OptionQuiz.findById(req.params.id); // ← o'zgaruvchi nomini o'zgartiring
+    if (!quiz) {
       return res.status(404).json({ message: "Savol topilmadi" });
     }
-    res.status(200).json(OptionQuiz);
+    res.status(200).json(quiz);
   } catch (error) {
-    res.status(500).json({ message: "Savolni olishda xatolik", error });
+    console.error("Savolni olishda xatolik:", error); // ← foydali log
+    res
+      .status(500)
+      .json({ message: "Savolni olishda xatolik", error: error.message });
   }
 };
+
 
 // Savolni tahrirlash (ID orqali)
 const updateOptionQuiz = async (req, res) => {
@@ -98,4 +147,5 @@ module.exports = {
   getOptionQuizById,
   updateOptionQuiz,
   deleteOptionQuiz,
+  getRandomQuestions,
 };

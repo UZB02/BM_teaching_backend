@@ -6,13 +6,15 @@ const {
   getOptionQuizById,
   deleteOptionQuiz,
   updateOptionQuiz,
+  getRandomQuestions
 } = require("../controllers/optionQuizController");
-
+const { protect } = require("../middlewares/authMiddleware");
 // CRUD route'lar
-router.post("/", createOptionQuiz);
-router.get("/", getAllOptionQuizs);
-router.get("/:id", getOptionQuizById);
-router.put("/:id", updateOptionQuiz);
-router.delete("/:id", deleteOptionQuiz);
+router.post("/",protect, createOptionQuiz);
+router.get("/", protect, getAllOptionQuizs);
+router.get("/random", protect, getRandomQuestions);
+router.get("/:id", protect, getOptionQuizById);
+router.put("/:id", protect, updateOptionQuiz);
+router.delete("/:id", protect, deleteOptionQuiz);
 
 module.exports = router;
